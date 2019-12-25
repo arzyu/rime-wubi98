@@ -1,0 +1,85 @@
+schema:
+  schema_id: wubi98
+  name: "五笔98"
+  version: "0.1"
+  author:
+    - 发明人：王永民
+  description: |
+    五笔字型98版
+    按 z 键进入拼音反查
+  dependencies:
+    - pinyin_simp
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, 英文 ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: extended_charset
+    states: [ 通用, 增廣 ]
+  - name: ascii_punct
+    states: [ 。，, ．， ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - reverse_lookup_translator
+    - table_translator
+  filters:
+    - simplifier
+    - uniquifier
+
+speller:
+  delimiter: " ;'"
+
+translator:
+  dictionary: wubi98
+  enable_charset_filter: true
+  enable_encoder: true
+  encode_commit_history: true
+  enable_completion: true
+  enable_sentence: true
+  enable_user_dict: true
+  max_phrase_length: 4
+  disable_user_dict_for_patterns:
+    - "^z.*$"
+    - "^[a-y]{1,2}$"
+
+reverse_lookup:
+  dictionary: pinyin_simp
+  prefix: "z"
+  tips: "〔反查〕"
+  preedit_format:
+    # 输入时将 nv, lv 等替换为 nü, lü
+    - xform/([nljqxy])v/$1ü/
+  comment_format:
+    # 让反查结果只显示最长的一个
+    # 如“你”字只显示 "wqiy"，而不是 "wq wqi wqiy"
+    - xform/^(\S+\s)*(\S+)$/$2/
+
+recognizer:
+  import_preset: default
+  patterns:
+    reverse_lookup: "^z[a-z]*$"
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
